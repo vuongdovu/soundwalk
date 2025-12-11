@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "804136644010",
+    "project_id": "skele-dea7b",
+    "storage_bucket": "skele-dea7b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:804136644010:android:d6bb5949bdb139f0cdcfd3",
+        "android_client_info": {
+          "package_name": "com.vuongdovu1.apptemplate"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA3j9HnIYyLWEtvLD5pGE8aUlSTmuoPXGE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

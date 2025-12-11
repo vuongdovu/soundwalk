@@ -102,6 +102,24 @@ export default function TabLayout() {
         })}
         <Label selectedStyle={labelSelectedStyle}>Explore</Label>
       </NativeTabs.Trigger>
+
+      <NativeTabs.Trigger name="Account">
+        {Platform.select({
+          ios: <Icon sf="person.crop.circle" selectedColor={tintColor} />,
+          android: (
+            <Icon
+              src={
+                <VectorIcon
+                  family={MaterialCommunityIcons as VectorIconFamily}
+                  name="account-circle-outline"
+                />
+              }
+              selectedColor={tintColor}
+            />
+          ),
+        })}
+        <Label selectedStyle={labelSelectedStyle}>Account</Label>
+      </NativeTabs.Trigger>
     </NativeTabs>
   );
 }

@@ -1,98 +1,161 @@
 import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { Link } from 'expo-router';
 
-import { HelloWave } from '@/components/hello-wave';
 import ParallaxScrollView from '@/components/parallax-scroll-view';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+import { useSelector } from 'react-redux';
+import { selectSession } from '@/state/selectors/sessionSelectors';
 
 export default function HomeScreen() {
+  const session = useSelector(selectSession)
+
   return (
     <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
+      headerBackgroundColor={{ light: '#0F1724', dark: '#050C14' }}
       headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
+        <View style={styles.hero}>
+          <Image
+            source={require('@/assets/images/partial-react-logo.png')}
+            style={styles.reactLogo}
+          />
+          <View style={styles.heroOverlay} />
+        </View>
       }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
+        <View>
+          <ThemedText>
+            {session?.token}
+          </ThemedText>
+        </View>
+      <ThemedView style={styles.headerText}>
+        <ThemedText type="title" style={styles.title}>
+          Welcome back
+        </ThemedText>
+        <ThemedText type="subtitle" style={styles.subtitle}>
+          Your personalized hub for exploring, learning, and staying on track.
         </ThemedText>
       </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
+      <View style={styles.cardGrid}>
+        <ThemedView style={styles.card}>
+          <ThemedText type="subtitle" style={styles.cardTitle}>
+            Quick start
+          </ThemedText>
+          <ThemedText style={styles.cardBody}>
+            Jump into your next task with curated shortcuts and recent activity.
+          </ThemedText>
+          <Link href="/(protected)/(tabs)/Explore">
+            <Link.Trigger>
+              <ThemedText type="link">Explore now</ThemedText>
+            </Link.Trigger>
+          </Link>
+        </ThemedView>
+
+        <ThemedView style={styles.card}>
+          <ThemedText type="subtitle" style={styles.cardTitle}>
+            Learn
+          </ThemedText>
+          <ThemedText style={styles.cardBody}>
+            Browse tips, guides, and walkthroughs tailored to your goals.
+          </ThemedText>
+          <Link href="/modal">
+            <Link.Trigger>
+              <ThemedText type="link">Open modal</ThemedText>
+            </Link.Trigger>
+          </Link>
+        </ThemedView>
+      </View>
+
+      <ThemedView style={styles.section}>
+        <ThemedText type="subtitle" style={styles.sectionTitle}>
+          Quick actions
         </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
+        <View style={styles.actionRow}>
+          <ThemedView style={styles.actionPill}>
+            <ThemedText type="defaultSemiBold">Create</ThemedText>
+            <ThemedText style={styles.pillText}>Start something new</ThemedText>
+          </ThemedView>
+          <ThemedView style={styles.actionPill}>
+            <ThemedText type="defaultSemiBold">Invite</ThemedText>
+            <ThemedText style={styles.pillText}>Add teammates</ThemedText>
+          </ThemedView>
+        </View>
       </ThemedView>
     </ParallaxScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
+  hero: {
+    flex: 1,
+    height: '100%',
+    width: '100%',
+    justifyContent: 'center',
     alignItems: 'center',
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
   },
   reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+    height: 200,
+    width: 300,
+    resizeMode: 'contain',
+  },
+  heroOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(15, 23, 36, 0.35)',
+  },
+  headerText: {
+    gap: 8,
+    marginBottom: 12,
+  },
+  title: {
+    fontWeight: '800',
+  },
+  subtitle: {
+    lineHeight: 20,
+  },
+  cardGrid: {
+    flexDirection: 'row',
+    gap: 12,
+    flexWrap: 'wrap',
+    marginTop: 8,
+  },
+  card: {
+    flex: 1,
+    minWidth: 200,
+    borderRadius: 14,
+    padding: 14,
+    gap: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.06)',
+  },
+  cardTitle: {
+    fontWeight: '700',
+  },
+  cardBody: {
+    lineHeight: 20,
+  },
+  section: {
+    marginTop: 20,
+    gap: 10,
+  },
+  sectionTitle: {
+    fontWeight: '700',
+  },
+  actionRow: {
+    flexDirection: 'row',
+    gap: 10,
+    flexWrap: 'wrap',
+  },
+  actionPill: {
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.06)',
+    gap: 4,
+    minWidth: 150,
+  },
+  pillText: {
+    color: 'rgba(255,255,255,0.7)',
   },
 });

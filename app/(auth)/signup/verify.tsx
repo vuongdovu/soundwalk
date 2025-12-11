@@ -1,15 +1,27 @@
 import { useState } from 'react';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { HeaderBackButton } from '@react-navigation/elements';
+import HeaderBackButton from '@/components/ui/headerbuttons/headerBackButton';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
+import { selectSession } from '@/state/selectors/sessionSelectors';
+import { useDispatch } from 'react-redux';
+import { setSession } from '@/state/slices/sessionSlice';
 
 export default function VerifyScreen() {
+  const dispatch = useDispatch();
+
   const [phone, setPhone] = useState('');
+  
+  // depending on what backend return you will set the session in redux or not,
+  // or take you to onboarding
+  const handleSubmit = () => {
+    dispatch(setSession({token: phone}))
+    router.push("/(auth)/onboarding/account")
+  }
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <HeaderBackButton onPress={() => {router.back()}}/>
+      <HeaderBackButton />
       <View style={styles.container}>
         <Text style={styles.title}>Verify your phone</Text>
         <Text style={styles.subtitle}>Enter your number to sign in</Text>
@@ -29,7 +41,7 @@ export default function VerifyScreen() {
           </View>
         </View>
 
-        <TouchableOpacity style={styles.button} activeOpacity={0.9}>
+        <TouchableOpacity style={styles.button} activeOpacity={0.9} onPress={handleSubmit}>
           <Text style={styles.buttonText}>Send code</Text>
         </TouchableOpacity>
       </View>
