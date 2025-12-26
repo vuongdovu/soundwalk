@@ -5,7 +5,7 @@ import { useSession } from '@/context/SessionContext';
 import TokenService from "@/services/TokenService";
 import { useRouter } from 'expo-router';
 import { useEffect } from 'react';
-import { Button, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Button, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function SignupScreen() {
@@ -80,13 +80,13 @@ export default function SignupScreen() {
 
         <GoogleSignIn />
 
-        <TouchableOpacity
+        {/* <TouchableOpacity
           style={styles.linkButton}
           activeOpacity={0.9}
           onPress={() => router.push('/signup/verify')}
         >
           <Text style={styles.linkText}>Use phone</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
     </SafeAreaView>
   );
