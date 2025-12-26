@@ -1,18 +1,37 @@
+import { useSession } from '@/context/SessionContext';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 
+import authService from '@/api/auth/AuthQueries';
 import ParallaxScrollView from '@/components/parallax-scroll-view';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { useDispatch } from 'react-redux';
-import { clearSession } from '@/state/slices/sessionSlice';
+import tokenService from '@/services/TokenService';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import { Text } from 'react-native';
 
 export default function AccountScreen() {
-  const dispatch = useDispatch();
+  const session = useSession();
+  const token = tokenService.getAccessToken();
+
+  async function signOut(){
+    if (GoogleSignin.hasPreviousSignIn()) {
+      await GoogleSignin.signOut()
+      console.log("signed out")
+    }
+    session.setUser(null);
+    const refresh = await tokenService.getRefreshToken();
+    await authService.logout(refresh);
+    await tokenService.clear();
+    await session.refreshSession();
+  }
+
   return (
     <ParallaxScrollView
       headerBackgroundColor={{ light: '#0F1724', dark: '#050C14' }}
       headerImage={<View />}
     >
+      <Text>{session.user?.full_name}</Text>
+      <Text>{token}</Text>
       <ThemedView style={styles.header}>
         <ThemedText type="title" style={styles.title}>
           Account
@@ -33,7 +52,7 @@ export default function AccountScreen() {
           style={styles.signOutButton}
           activeOpacity={0.9}
           onPress={() => {
-            dispatch(clearSession());
+            signOut();
           }}
         >
           <ThemedText type="defaultSemiBold" style={styles.signOutText}>

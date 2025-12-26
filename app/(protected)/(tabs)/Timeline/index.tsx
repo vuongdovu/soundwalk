@@ -1,11 +1,11 @@
 import { Image } from 'expo-image';
-import { StyleSheet, View } from 'react-native';
 import { Link } from 'expo-router';
+import { StyleSheet, View } from 'react-native';
 
+import ParallaxScrollView from '@/components/parallax-scroll-view';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { IconSymbol } from '@/components/ui/icon-symbol';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
 
 const features = [
   {
@@ -30,7 +30,7 @@ const features = [
   },
 ];
 
-export default function ExploreScreen() {
+export default function TimelineScreen() {
   return (
     <ParallaxScrollView
       headerBackgroundColor={{ light: '#0F1724', dark: '#050C14' }}

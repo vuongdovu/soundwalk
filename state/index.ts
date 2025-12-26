@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { configureStore } from '@reduxjs/toolkit';
-import { persistStore, persistReducer } from 'redux-persist';
 import { combineReducers } from 'redux';
+import { persistReducer, persistStore } from 'redux-persist';
 import sessionReducer from './slices/sessionSlice';
 
 const rootReducer = combineReducers({ session: sessionReducer });
@@ -9,7 +9,7 @@ const rootReducer = combineReducers({ session: sessionReducer });
 const persistConfig = {
   key: 'root',
   storage: AsyncStorage,
-  whitelist: ['session'], // only persist session
+  whitelist: ['session'],
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

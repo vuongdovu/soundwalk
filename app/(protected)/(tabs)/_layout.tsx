@@ -85,9 +85,27 @@ export default function TabLayout() {
         <Label selectedStyle={labelSelectedStyle}>Home</Label>
       </NativeTabs.Trigger>
 
-      <NativeTabs.Trigger name="Explore">
+       <NativeTabs.Trigger name="Create">
         {Platform.select({
-          ios: <Icon sf="paperplane" selectedColor={tintColor} />,
+          ios: <Icon sf="plus" selectedColor={tintColor} />,
+          android: (
+            <Icon
+              src={
+                <VectorIcon
+                  family={MaterialCommunityIcons as VectorIconFamily}
+                  name="account-circle-outline"
+                />
+              }
+              selectedColor={tintColor}
+            />
+          ),
+        })}
+        <Label selectedStyle={labelSelectedStyle}>Create</Label>
+      </NativeTabs.Trigger>
+
+      <NativeTabs.Trigger name="Timeline">
+        {Platform.select({
+          ios: <Icon sf="arrow.branch" selectedColor={tintColor} />,
           android: (
             <Icon
               src={
@@ -100,7 +118,7 @@ export default function TabLayout() {
             />
           ),
         })}
-        <Label selectedStyle={labelSelectedStyle}>Explore</Label>
+        <Label selectedStyle={labelSelectedStyle}>Timeline</Label>
       </NativeTabs.Trigger>
 
       <NativeTabs.Trigger name="Account">
@@ -120,6 +138,13 @@ export default function TabLayout() {
         })}
         <Label selectedStyle={labelSelectedStyle}>Account</Label>
       </NativeTabs.Trigger>
+
+      <NativeTabs.Trigger name="Search" role="search">
+        <Label>search</Label>
+        <Icon sf="magnifyingglass.circle.fill" />
+      </NativeTabs.Trigger>
+
+      
     </NativeTabs>
   );
 }

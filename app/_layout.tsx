@@ -1,45 +1,70 @@
-import { useEffect } from 'react';
+import { PermissionProvider } from '@/context/PermissionContext';
+import { SessionProvider, useSession } from '@/context/SessionContext';
+import { getAuth } from '@react-native-firebase/auth';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { useEffect } from 'react';
 import 'react-native-reanimated';
-import { Provider, useSelector } from 'react-redux';
-import { PersistGate } from 'redux-persist/integration/react';
 
-import { store, persistor } from '@/state';
-import { selectSession } from '@/state/selectors/sessionSelectors';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { setLogLevel } from '@react-native-firebase/app';
 
 export const unstable_settings = {};
 
+if(__DEV__) {
+  getAuth().settings.appVerificationDisabledForTesting = true;
+  setLogLevel('debug');
+}
+
 export default function RootLayout() {
+  const colorScheme = useColorScheme();
+
   return (
-    <Provider store={store}>
-      <PersistGate loading={null} persistor={persistor}>
-        <RootNavigation />
-      </PersistGate>
-    </Provider>
+    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+      <SessionProvider>
+        <PermissionProvider>
+          <RootNavigation />
+        </PermissionProvider>
+      </SessionProvider>
+    </ThemeProvider>
   );
 }
 
 function RootNavigation() {
-  const colorScheme = useColorScheme();
-  const session = useSelector(selectSession);
+  const { user, loading } = useSession();
   const segments = useSegments();
   const router = useRouter();
 
   useEffect(() => {
-    const inAuthGroup = segments[0] === '(auth)';
-
-    if (!session && !inAuthGroup) {
-      router.replace('/(auth)/signup');
-    } else if (session && inAuthGroup) {
-      router.replace('/(protected)/(tabs)/Main');
+    if (loading) {
+      return;
     }
-  }, [session, segments, router]);
 
+    const inAuthGroup = segments[0] === '(auth)';
+    const inOnboarding = segments[1] === 'onboarding';
+
+    if (!user) {
+      if (!inAuthGroup) {
+        router.replace('/signup');
+      }
+      return;
+    }
+
+    if (!user.profile_completed) {
+      if (!inAuthGroup || !inOnboarding) {
+        router.replace('/onboarding/account');
+      }
+      return;
+    }
+
+    if (inAuthGroup) {
+      router.replace('/Main');
+    }
+  }, [user, loading, segments, router]);
+  
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+    <>
       <Stack
         screenOptions={{
           headerShown: false,
@@ -52,6 +77,6 @@ function RootNavigation() {
         <Stack.Screen name="(protected)" options={{ headerShown: false }} />
       </Stack>
       <StatusBar style="auto" />
-    </ThemeProvider>
+    </>
   );
 }

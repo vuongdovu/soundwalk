@@ -1,8 +1,8 @@
+import HeaderBackButton from '@/components/ui/complex/header/headerBackButton';
+import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { router } from 'expo-router';
-import HeaderBackButton from '@/components/ui/headerbuttons/headerBackButton';
 
 export default function AccountOnboardingScreen() {
   const [name, setName] = useState('');
@@ -48,23 +48,13 @@ export default function AccountOnboardingScreen() {
             textContentType="emailAddress"
             returnKeyType="next"
           />
-          <Input
-            label="Password"
-            placeholder="At least 6 characters"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-            textContentType="password"
-            autoComplete="password-new"
-            returnKeyType="done"
-          />
         </View>
 
         <TouchableOpacity
           style={[styles.button, !isReady && styles.buttonDisabled]}
           activeOpacity={0.9}
           disabled={!isReady}
-          onPress={() => {router.push("/(protected)/(tabs)/Main")}}
+          onPress={() => {router.push("/Main")}}
         >
           <Text style={styles.buttonText}>Create account</Text>
         </TouchableOpacity>

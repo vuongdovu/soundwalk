@@ -13,7 +13,20 @@
       "bundleIdentifier": "com.vuongdovu1.apptemplate",
       "usesAppleSignIn": true,
       "appleTeamId": "Y53WF4HJUU",
-      "googleServicesFile": "./GoogleService-Info.plist"
+      "googleServicesFile": "./GoogleService-Info.plist",
+      "infoPlist": {
+        "CFBundleURLTypes": [
+          {
+            "CFBundleURLSchemes": [
+              "com.googleusercontent.apps.804136644010-dlh0rh7ut1ru7kmea8me62crbldnsd6b",
+              "app-1-804136644010-ios-601ea32b3498f272cdcfd3"
+            ]
+          }
+        ],
+        "NSCameraUsageDescription": "This app uses the camera to take photos.",
+        "NSMicrophoneUsageDescription": "This app uses the microphone to record audio.",
+        "NSLocationWhenInUseUsageDescription": "This app uses your location to show nearby places on the map."
+      }
     },
     "android": {
       "googleServicesFile": "./google-services.json",
@@ -60,6 +73,15 @@
           "ios": {
             "useFrameworks": "static"
           }
+        }
+      ],
+      "expo-maps",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera",
+          "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone",
+          "recordAudioAndroid": true
         }
       ]
     ],

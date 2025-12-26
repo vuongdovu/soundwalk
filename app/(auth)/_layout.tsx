@@ -25,9 +25,7 @@ export default function AuthLayout() {
           animationDuration: 200,
           gestureEnabled: false,
         }}
-      >
-        <Stack.Screen name="signup" />
-      </Stack>
+      />
     </>
   );
 }

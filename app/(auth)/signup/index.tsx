@@ -1,62 +1,67 @@
+import authService from '@/api/auth/AuthQueries';
+import { GoogleSignin, isErrorWithCode, isSuccessResponse, statusCodes } from '@react-native-google-signin/google-signin';
+// import * as AppleAuthentication from 'expo-apple-authentication';
+import { useSession } from '@/context/SessionContext';
+import TokenService from "@/services/TokenService";
+import { useRouter } from 'expo-router';
 import { useEffect } from 'react';
-import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Button, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { router } from 'expo-router';
-import * as AppleAuthentication from 'expo-apple-authentication';
-import {
-  GoogleSignin,
-  GoogleSigninButton,
-  statusCodes,
-} from '@react-native-google-signin/google-signin';
-import { useDispatch } from 'react-redux';
-import { setSession } from '@/state/slices/sessionSlice';
 
 export default function SignupScreen() {
-  const dispatch = useDispatch();
+  const {refreshSession} = useSession();
+  const router = useRouter();
 
   useEffect(() => {
     GoogleSignin.configure({
-      // TODO: replace with your real Web Client ID from Google Cloud Console
-      webClientId: 'YOUR_WEB_CLIENT_ID',
-      iosClientId: "798679775748-jq6juds6ibvmsvdolqkf7rnn4bv0dckn.apps.googleusercontent.com"
+      iosClientId: "804136644010-dlh0rh7ut1ru7kmea8me62crbldnsd6b.apps.googleusercontent.com",
+      webClientId: "804136644010-46gcova7ksrmjjsvsgcvosroink4rpid.apps.googleusercontent.com"
     });
   }, []);
 
-  const handleApple = async () => {
-    try {
-      const available = await AppleAuthentication.isAvailableAsync();
-      if (!available) {
-        Alert.alert('Apple Sign-In not available on this device');
-        return;
-      }
-      const credential = await AppleAuthentication.signInAsync({
-        requestedScopes: [
-          AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
-          AppleAuthentication.AppleAuthenticationScope.EMAIL,
-        ],
-      });
-      // TODO: send credential.identityToken or authorizationCode to your backend
-      // const session = await api.signInWithApple(credential);
-      // dispatch(setSession(session));
-      // router.replace('/(protected)/(tabs)/Main');
-    } catch (e: any) {
-      if (e?.code === 'ERR_REQUEST_CANCELED') return;
-      Alert.alert('Sign-in failed', e?.message ?? 'Please try again');
-    }
-  };
+  function GoogleSignIn() {
+    return (
+      <Button
+        title="Google Sign-In"
+        onPress={() => signIn().then(() => console.log('Signed in with Google!'))}
+      />
+    );
+  }
 
-  const handleGoogle = async () => {
+  const signIn = async () => {
     try {
-      await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
-      const userInfo = await GoogleSignin.signIn();
-      // TODO: send userInfo.idToken or serverAuthCode to your backend to create a session
-      // dispatch(setSession(session));
-      // router.replace('/(protected)/(tabs)/Main');
-      console.log('Google user', userInfo);
-    } catch (e: any) {
-      if (e?.code === statusCodes.SIGN_IN_CANCELLED) return;
-      if (e?.code === statusCodes.IN_PROGRESS) return;
-      Alert.alert('Google Sign-In failed', e?.message ?? 'Please try again');
+      // await GoogleSignin.hasPlayServices();
+      if (GoogleSignin.hasPreviousSignIn()) {
+        await GoogleSignin.signOut()
+      }
+      const response = await GoogleSignin.signIn();
+      if (isSuccessResponse(response)) {
+        const { accessToken } = await GoogleSignin.getTokens();
+        const resp = await authService.google(accessToken); 
+        await TokenService.setTokens(resp.access, resp.refresh);
+        await refreshSession();
+        router.replace("/onboarding/account")
+      } else {
+        // sign in was cancelled by user
+        console.log("cancelled by user")
+      }
+    } catch (error) {
+      if (isErrorWithCode(error)) {
+        switch (error.code) {
+          case statusCodes.IN_PROGRESS:
+            // operation (eg. sign in) already in progress
+            break;
+          case statusCodes.PLAY_SERVICES_NOT_AVAILABLE:
+            // Android only, play services not available or outdated
+            break;
+          default:
+            console.log("Error during Google sign-in", error);
+
+          // some other error happened
+        }
+      } else {
+        // an error that's not related to google sign in occurred
+      }
     }
   };
 
@@ -65,27 +70,22 @@ export default function SignupScreen() {
       <View style={styles.container}>
         <Text style={styles.title}>Create your account</Text>
 
-        <AppleAuthentication.AppleAuthenticationButton
+        {/* <AppleAuthentication.AppleAuthenticationButton
           buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
           buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
           cornerRadius={10}
           style={styles.appleButton}
           onPress={handleApple}
-        />
+        /> */}
 
-        <GoogleSigninButton
-          size={GoogleSigninButton.Size.Wide}
-          color={GoogleSigninButton.Color.Dark}
-          style={styles.googleButton}
-          onPress={handleGoogle}
-        />
+        <GoogleSignIn />
 
         <TouchableOpacity
           style={styles.linkButton}
           activeOpacity={0.9}
-          onPress={() => router.push('/(auth)/signup/verify')}
+          onPress={() => router.push('/signup/verify')}
         >
-          <Text style={styles.linkText}>Use phone/email instead</Text>
+          <Text style={styles.linkText}>Use phone</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
