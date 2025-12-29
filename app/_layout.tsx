@@ -1,7 +1,9 @@
 import { PermissionProvider } from '@/context/PermissionContext';
 import { SessionProvider, useSession } from '@/context/SessionContext';
+import { queryClient } from '@/services/QueryClientService';
 import { getAuth } from '@react-native-firebase/auth';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
+import { QueryClientProvider } from '@tanstack/react-query';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
@@ -22,11 +24,13 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <SessionProvider>
-        <PermissionProvider>
-          <RootNavigation />
-        </PermissionProvider>
-      </SessionProvider>
+      <QueryClientProvider client={queryClient}>
+        <SessionProvider>
+          <PermissionProvider>
+            <RootNavigation />
+          </PermissionProvider>
+        </SessionProvider>
+      </QueryClientProvider>
     </ThemeProvider>
   );
 }

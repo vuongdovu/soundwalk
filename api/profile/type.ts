@@ -1,0 +1,15 @@
+export type Profile = {
+  "user_id": string,
+  "user_email": string,
+  "username": string,
+  "first_name": string,
+  "last_name": string,
+  "full_name": string,
+  "profile_picture": string,
+  "profile_picture_url": string,
+  "timezone": string,
+  "preferences": [],
+  "is_complete": string,
+  "created_at": string,
+  "updated_at": string,
+}

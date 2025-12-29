@@ -1,8 +1,10 @@
 import HeaderBackButton from '@/components/ui/complex/header/headerBackButton';
+import { Button } from '@/components/ui/primitive/button';
 import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useCallback } from 'react';
 
 export default function AccountOnboardingScreen() {
   const [name, setName] = useState('');
@@ -14,6 +16,10 @@ export default function AccountOnboardingScreen() {
     email,
     password,
   ]);
+
+  const handleNext = () => {
+    
+  }
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -62,6 +68,11 @@ export default function AccountOnboardingScreen() {
         <Text style={styles.footerText}>
           By continuing you agree to our Terms and acknowledge our Privacy Policy.
         </Text>
+
+        <Button onClick={() => {handleNext()}>
+          Next
+        </Button>
+
       </View>
     </SafeAreaView>
   );

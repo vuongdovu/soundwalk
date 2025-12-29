@@ -38,6 +38,7 @@ export default function SignupScreen() {
       if (isSuccessResponse(response)) {
         const { accessToken } = await GoogleSignin.getTokens();
         const resp = await authService.google(accessToken); 
+        console.log(resp)
         await TokenService.setTokens(resp.access, resp.refresh);
         await refreshSession();
         router.replace("/onboarding/account")
@@ -61,6 +62,7 @@ export default function SignupScreen() {
         }
       } else {
         // an error that's not related to google sign in occurred
+        console.log("error")
       }
     }
   };

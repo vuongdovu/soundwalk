@@ -2,9 +2,13 @@ import { useSession } from '@/context/SessionContext';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 
 import authService from '@/api/auth/AuthQueries';
+import { useCurrentUserProfile } from '@/api/profile/RQuery';
 import ParallaxScrollView from '@/components/parallax-scroll-view';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
+import ProfilePicture from '@/components/ui/complex/profile/profilePicture';
+import ActionList from '@/components/ui/primitive/ActionList';
+import { accountLinks } from '@/constants/accountLinks';
 import tokenService from '@/services/TokenService';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { Text } from 'react-native';
@@ -12,6 +16,8 @@ import { Text } from 'react-native';
 export default function AccountScreen() {
   const session = useSession();
   const token = tokenService.getAccessToken();
+  const {data, isLoading} = useCurrentUserProfile();
+
 
   async function signOut(){
     if (GoogleSignin.hasPreviousSignIn()) {
@@ -30,24 +36,14 @@ export default function AccountScreen() {
       headerBackgroundColor={{ light: '#0F1724', dark: '#050C14' }}
       headerImage={<View />}
     >
-      <Text>{session.user?.full_name}</Text>
-      <Text>{token}</Text>
-      <ThemedView style={styles.header}>
-        <ThemedText type="title" style={styles.title}>
-          Account
-        </ThemedText>
-        <ThemedText style={styles.subtitle}>
-          Manage your session and preferences from here.
-        </ThemedText>
-      </ThemedView>
-
+      <ProfilePicture 
+        profilePictureUrl={data?.profile_picture_url}
+      />
+      <Text>{session.user?.username}</Text>
+      <ActionList 
+        actions={accountLinks}
+      />
       <ThemedView style={styles.card}>
-        <ThemedText type="subtitle" style={styles.cardTitle}>
-          Session
-        </ThemedText>
-        <ThemedText style={styles.cardBody}>
-          You are currently signed in. Use the button below to sign out.
-        </ThemedText>
         <TouchableOpacity
           style={styles.signOutButton}
           activeOpacity={0.9}

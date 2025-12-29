@@ -1,4 +1,5 @@
 import { useCameraPermissions } from 'expo-camera';
+import { useLocationPermissions } from 'expo-maps';
 import { PermissionStatus } from 'expo-modules-core';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { Alert, AppState, Linking } from 'react-native';
@@ -31,12 +32,18 @@ const PermissionContext = createContext<PermissionContextType | undefined>(undef
 export function PermissionProvider({ children }: { children: React.ReactNode }) {
     const [permissions, setPermissions] = useState<PermissionState>({});
     const [cameraPermission, requestCameraPermission] = useCameraPermissions();
+    const [locationPermission, requestLocationPermission] = useLocationPermissions();
 
     const checkPermission = useCallback(async (type: PermissionType) => {
         try {
             if (type === 'camera') {
                 const status = cameraPermission?.status ?? PermissionStatus.UNDETERMINED;
                 setPermissions((prev) => ({ ...prev, camera: status }));
+                return status;
+            }
+            if (type === 'location') {
+                const status = locationPermission?.status ?? PermissionStatus.UNDETERMINED;
+                setPermissions((prev) => ({ ...prev, location: status }));
                 return status;
             }
         return PermissionStatus.UNDETERMINED;
