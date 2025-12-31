@@ -10,7 +10,7 @@ export default function LocationPermission() {
     return(
         <View>
             <Button
-                onClick={() => {permission.ensurePermission("location")}}
+                onPress={() => {permission.ensurePermission("location")}}
             >
                 Enable Location
             </Button>

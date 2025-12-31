@@ -4,7 +4,6 @@ import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useCallback } from 'react';
 
 export default function AccountOnboardingScreen() {
   const [name, setName] = useState('');
@@ -69,7 +68,7 @@ export default function AccountOnboardingScreen() {
           By continuing you agree to our Terms and acknowledge our Privacy Policy.
         </Text>
 
-        <Button onClick={() => {handleNext()}>
+        <Button onPress={() => {handleNext()}}>
           Next
         </Button>
 
