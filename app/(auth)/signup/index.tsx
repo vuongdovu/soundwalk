@@ -14,7 +14,7 @@ export default function SignupScreen() {
 
   useEffect(() => {
     GoogleSignin.configure({
-      iosClientId: "804136644010-dlh0rh7ut1ru7kmea8me62crbldnsd6b.apps.googleusercontent.com",
+      iosClientId: "804136644010-9d2tffnkeag7mtu5u5mnblvsmhfjrsff.apps.googleusercontent.com",
       webClientId: "804136644010-46gcova7ksrmjjsvsgcvosroink4rpid.apps.googleusercontent.com"
     });
   }, []);
@@ -49,19 +49,15 @@ export default function SignupScreen() {
       if (isErrorWithCode(error)) {
         switch (error.code) {
           case statusCodes.IN_PROGRESS:
-            // operation (eg. sign in) already in progress
             break;
           case statusCodes.PLAY_SERVICES_NOT_AVAILABLE:
-            // Android only, play services not available or outdated
             break;
           default:
             console.log("Error during Google sign-in", error);
-
-          // some other error happened
         }
       } else {
         // an error that's not related to google sign in occurred
-        console.log("error")
+        console.log("error", error)
       }
     }
   };

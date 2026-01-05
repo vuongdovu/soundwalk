@@ -51,7 +51,7 @@ export function PermissionProvider({ children }: { children: React.ReactNode }) 
             console.error(`Error checking ${type} permission:`, error);
         }
         return PermissionStatus.UNDETERMINED;
-    }, []);
+    }, [cameraPermission, locationPermission]);
 
     const requestPermission = useCallback(async (type: PermissionType) => {
         try {

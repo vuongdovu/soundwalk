@@ -61,7 +61,8 @@ async function parseError(res: Response) {
 }
 
 // Prefer env var so the client points at the Django API.
-const rawBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost";
+// const rawBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost";
+const rawBaseUrl = "http://192.168.1.91"
 // Ensure we always have a protocol; allows users to set either "http://localhost:8000" or "localhost:8000".
 const BASE_URL = rawBaseUrl.startsWith("http") ? rawBaseUrl : `http://${rawBaseUrl}`;
 

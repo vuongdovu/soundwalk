@@ -11,7 +11,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.vuongdovu1.apptemplate",
-      "usesAppleSignIn": true,
+      // "usesAppleSignIn": false,
       "appleTeamId": "Y53WF4HJUU",
       "googleServicesFile": "./GoogleService-Info.plist",
       "infoPlist": {
@@ -58,9 +58,9 @@
           }
         }
       ],
-      [
-        "expo-apple-authentication"
-      ],
+      // [
+      //   "expo-apple-authentication"
+      // ],
       [
         "@react-native-google-signin/google-signin"
       ],
