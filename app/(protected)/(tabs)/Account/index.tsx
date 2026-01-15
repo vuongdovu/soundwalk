@@ -7,7 +7,7 @@ import ParallaxScrollView from '@/components/parallax-scroll-view';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import ProfilePicture from '@/components/ui/complex/profile/profilePicture';
-import ActionList from '@/components/ui/primitive/ActionList';
+import ActionList from '@/components/ui/primitive/actionList';
 import { accountLinks } from '@/constants/accountLinks';
 import tokenService from '@/services/TokenService';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';

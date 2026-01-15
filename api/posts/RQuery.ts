@@ -1,11 +1,14 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import postService from './PostQueries';
-import { CreatePostRequest } from './type';
+import { CreatePostRequest, PostListResponse, PostParams } from './type';
 
-export function useCurrentUserProfile() {
-    return useQuery({
-    queryKey: ['userPosts'],
-    queryFn: async () => postService.listPost(),
+const DEFAULT_POST_PARAMS: PostParams = { is_draft: false };
+
+export function useCurrentUserProfilePost(params?: PostParams) {
+  const resolvedParams = params ?? DEFAULT_POST_PARAMS;
+  return useQuery<PostListResponse>({
+    queryKey: ['userPosts', resolvedParams],
+    queryFn: async () => postService.listPost(resolvedParams),
   });
 }
 
@@ -17,5 +20,13 @@ export function useCreatePost() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["userPosts"] });
     },
+  });
+}
+
+export function usePost(postId?: string) {
+  return useQuery({
+    queryKey: ['userPost', postId],
+    queryFn: async () => postService.postRetrieve(postId ?? ''),
+    enabled: Boolean(postId),
   });
 }

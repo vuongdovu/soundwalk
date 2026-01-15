@@ -1,8 +1,10 @@
 import { Button } from '@/components/ui/primitive/button';
 import { PillSelector } from '@/components/ui/primitive/pillSelector';
+import { globalStyle } from '@/constants/styles';
 import { usePermissions } from '@/context/PermissionContext';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
+import * as Location from 'expo-location';
 import { PermissionStatus } from 'expo-modules-core';
 import { useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -20,7 +22,10 @@ const WIDE: PhysicalCameraDeviceType = 'wide-angle-camera';
 const TELEPHOTO: PhysicalCameraDeviceType = 'telephoto-camera';
 
 type CreateCameraProps = {
-  onCapture: (photoUri: string) => void;
+  onCapture: (
+    photoUri: string,
+    location: { lat: number; lng: number; accuracy_m: number } | null
+  ) => void;
   isBusy?: boolean;
 };
 
@@ -28,7 +33,7 @@ export default function CreateCamera({ onCapture, isBusy = false }: CreateCamera
   const [facing, setFacing] = useState<CameraPosition>('back');
   const [flash, setFlash] = useState<'off' | 'on'>('off');
   const [zoom, setZoom] = useState(1);
-  const { permissions, checkPermission, requestPermission } = usePermissions();
+  const { permissions, checkPermission, requestPermission, ensurePermission } = usePermissions();
   const cameraRef = useRef<Camera>(null);
   const [cameraReady, setCameraReady] = useState(false);
   const zoomStartRef = useRef(0);
@@ -165,15 +170,35 @@ export default function CreateCamera({ onCapture, isBusy = false }: CreateCamera
 
   const cameraGesture = Gesture.Simultaneous(pinchGesture, doubleTapGesture);
 
+  async function getLocationSnapshot() {
+    try {
+      const hasPermission = await ensurePermission('location');
+      if (!hasPermission) return null;
+      const position = await Location.getCurrentPositionAsync({
+        accuracy: Location.LocationAccuracy.Balanced,
+      });
+      return {
+        lat: position.coords.latitude,
+        lng: position.coords.longitude,
+        accuracy_m: position.coords.accuracy ?? 0,
+      };
+    } catch (error) {
+      console.warn('Failed to get location', error);
+      return null;
+    }
+  }
+
   async function handleTakePicture() {
     if (!cameraRef.current || !cameraReady || isBusy) return;
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Rigid);
     try {
+      const locationPromise = getLocationSnapshot();
       const picture = await cameraRef.current.takePhoto({ flash });
       const photoUri = picture.path.startsWith('file://')
         ? picture.path
         : `file://${picture.path}`;
-      onCapture(photoUri);
+      const location = await locationPromise;
+      onCapture(photoUri, location);
     } catch (error) {
       console.error('Failed to take picture', error);
     }
@@ -212,7 +237,7 @@ export default function CreateCamera({ onCapture, isBusy = false }: CreateCamera
           </View>
         </View>
 
-        <View style={styles.bottomBar}>
+        <View style={globalStyle.bottomBar}>
           <PillSelector
             items={zoomPills}
             selectedIndex={zoomPillIndex}
@@ -269,14 +294,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: 'rgba(0, 0, 0, 0.45)',
-  },
-  bottomBar: {
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 32,
-    paddingBottom: 70,
-    gap: 12,
   },
   zoomRow: {
     flexDirection: 'row',

@@ -20,6 +20,10 @@ function getCsrfToken() {
   return match ? decodeURIComponent(match[1]) : null;
 }
 
+function isFormData(body: unknown): body is FormData {
+  return typeof FormData !== "undefined" && body instanceof FormData;
+}
+
 class AuthExpiredError extends Error {
   constructor(message = "Session expired. Please log in again.") {
     super(message);
@@ -60,9 +64,17 @@ async function parseError(res: Response) {
   return payload?.detail ?? `Request failed: ${res.status}`;
 }
 
+function isPublicAuthPath(path: string) {
+  return (
+    path.includes("/auth/login/") ||
+    path.includes("/auth/google/") ||
+    path.includes("/auth/registeration/")
+  );
+}
+
 // Prefer env var so the client points at the Django API.
 // const rawBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost";
-const rawBaseUrl = "http://192.168.1.91"
+const rawBaseUrl = "http://10.0.0.159"
 // Ensure we always have a protocol; allows users to set either "http://localhost:8000" or "localhost:8000".
 const BASE_URL = rawBaseUrl.startsWith("http") ? rawBaseUrl : `http://${rawBaseUrl}`;
 
@@ -94,16 +106,29 @@ export async function apiClient<T>(
   const attempt = async () => {
     const csrf = getCsrfToken();
     const token =
-      opts.token === undefined ? await TokenService.getAccessToken() : opts.token;
+      opts.token === undefined
+        ? isPublicAuthPath(path)
+          ? null
+          : await TokenService.getAccessToken()
+        : opts.token;
+    const isForm = isFormData(opts.body);
+    const hasBody = opts.body !== undefined && opts.body !== null;
+    const body = !hasBody
+      ? undefined
+      : isForm
+        ? opts.body
+        : typeof opts.body === "string"
+          ? opts.body
+          : JSON.stringify(opts.body);
     const res = await fetch(`${BASE_URL}${path}`, {
       method: opts.method ?? "GET",
       headers: {
-        "Content-Type": "application/json",
+        ...(isForm ? {} : { "Content-Type": "application/json" }),
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
         ...(csrf ? { "X-CSRFToken": csrf } : {}),
         ...(opts.headers ?? {}),
       },
-      body: opts.body ? JSON.stringify(opts.body) : undefined,
+      body,
       // For Next caching control (choose your strategy):
       cache: "no-store",
     });
@@ -118,6 +143,10 @@ export async function apiClient<T>(
       const res: Response | undefined = err instanceof Response ? err : err?.res;
 
     if (res?.status === 401) {
+      if (isPublicAuthPath(path)) {
+        throw new Error(await parseError(res));
+      }
+
       // If refresh itself failed, surface an auth-expired error.
       if (path.includes("/refresh/")) {
         throw new AuthExpiredError();

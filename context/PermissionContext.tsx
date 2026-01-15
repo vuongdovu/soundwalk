@@ -60,12 +60,17 @@ export function PermissionProvider({ children }: { children: React.ReactNode }) 
                 setPermissions((prev) => ({ ...prev, camera: status }));
                 return status;
             }
+            if (type === 'location') {
+                const { status } = await requestLocationPermission();
+                setPermissions((prev) => ({ ...prev, location: status }));
+                return status;
+            }
         return PermissionStatus.UNDETERMINED;
         } catch (error) {
             console.error(`Error requesting ${type} permission:`, error);
         }
         return PermissionStatus.UNDETERMINED;
-    }, []);
+    }, [requestCameraPermission, requestLocationPermission]);
     
     const ensurePermission = useCallback(async (
         type: PermissionType,
@@ -74,7 +79,7 @@ export function PermissionProvider({ children }: { children: React.ReactNode }) 
         const openSettingsOnDeny = opts?.openSettingsOnDeny ?? false;
 
         const current = await checkPermission(type);
-        console.log(`[Permissions] Current status for ${type}:`, current);
+        // console.log(`[Permissions] Current status for ${type}:`, current);
 
         if (current === PermissionStatus.GRANTED) return true;
 

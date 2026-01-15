@@ -1,12 +1,14 @@
 import { PermissionProvider } from '@/context/PermissionContext';
 import { SessionProvider, useSession } from '@/context/SessionContext';
 import { queryClient } from '@/services/QueryClientService';
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { getAuth } from '@react-native-firebase/auth';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
+import { StyleSheet } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import 'react-native-reanimated';
 
@@ -24,14 +26,16 @@ export default function RootLayout() {
   const colorScheme = useColorScheme();
 
   return (
-    <GestureHandlerRootView>
+    <GestureHandlerRootView style={styles.root}>
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
         <QueryClientProvider client={queryClient}>
-          <SessionProvider>
-            <PermissionProvider>
-              <RootNavigation />
-            </PermissionProvider>
-          </SessionProvider>
+          <BottomSheetModalProvider>
+            <SessionProvider>
+              <PermissionProvider>
+                <RootNavigation />
+              </PermissionProvider>
+            </SessionProvider>
+          </BottomSheetModalProvider>
         </QueryClientProvider>
       </ThemeProvider>
     </GestureHandlerRootView>
@@ -87,3 +91,9 @@ function RootNavigation() {
     </>
   );
 }
+
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+  },
+});

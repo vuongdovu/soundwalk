@@ -1,22 +1,22 @@
-import { useCreatePost } from '@/api/posts/RQuery';
-import type { CreatePostRequest } from '@/api/posts/type';
 import CreateCamera from '@/components/ui/complex/create/CreateCamera';
+import { router } from 'expo-router';
 
 export default function CreatePage() {
-  const { mutate: createPost, isPending } = useCreatePost();
-
-  function handleCapture(photoUri: string) {
-    const payload: CreatePostRequest = {
-      photo: photoUri,
-      visibility: 'public',
-      taken_at: new Date().toISOString(),
-      is_draft: false,
-      lat: 0,
-      lng: 0,
-      accuracy_m: 0,
-    };
-    createPost(payload);
+  function handleCapture(
+    photoUri: string,
+    location: { lat: number; lng: number; accuracy_m: number } | null
+  ) {
+    const params: Record<string, string> = { photoUri };
+    if (location) {
+      params.lat = `${location.lat}`;
+      params.lng = `${location.lng}`;
+      params.accuracy_m = `${location.accuracy_m}`;
+    }
+    router.push({
+      pathname: '/Create/draftPost',
+      params,
+    });
   }
 
-  return <CreateCamera onCapture={handleCapture} isBusy={isPending} />;
+  return <CreateCamera onCapture={handleCapture} />;
 }

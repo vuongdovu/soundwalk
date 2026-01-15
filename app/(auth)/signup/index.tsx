@@ -36,8 +36,11 @@ export default function SignupScreen() {
       }
       const response = await GoogleSignin.signIn();
       if (isSuccessResponse(response)) {
-        const { accessToken } = await GoogleSignin.getTokens();
-        const resp = await authService.google(accessToken); 
+        const { accessToken, idToken } = await GoogleSignin.getTokens();
+        if (!accessToken) {
+          throw new Error("Google sign-in did not return any tokens.");
+        }
+        const resp = await authService.google(accessToken);
         await TokenService.setTokens(resp.access, resp.refresh);
         await refreshSession();
         router.replace("/onboarding/account")

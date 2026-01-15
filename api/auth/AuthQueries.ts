@@ -7,7 +7,7 @@ interface AuthService {
     login: (email: string, password: string) => Promise<UserResponse>;
     logout: (refresh: string) => Promise<void>;
     register: (email: string, password1: string, password2: string) => Promise<AuthResponse>;
-    google: (token: string) => Promise<UserResponse>;
+    google: (accessToken?: string, idToken?: string) => Promise<UserResponse>;
 }
 
 const authService: AuthService = {
@@ -28,10 +28,12 @@ const authService: AuthService = {
       method: "POST",
       body: { email, password1, password2 },
     }),
-  google: (accessToken) => 
+  google: (accessToken) =>
     apiClient<UserResponse>(AuthEndpoints.google(), {
       method: "POST",
-      body: { access_token: accessToken },
+      body: {
+        ...(accessToken ? { access_token: accessToken } : {}),
+      },
     }),
 };
 
