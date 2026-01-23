@@ -10,9 +10,23 @@ export type PostReponse = {
     lat: number
     lng: number
     accuracy_m: number
+    count: number
 }
 
-export type PostListResponse = PaginatedResponse<PostReponse> | PostReponse[]
+export type ClusterInfo = {
+    count: number,
+    h3_index: string,
+    lat: number,
+    lng: number
+}
+
+export type PostClusterResponse = { 
+    clusters: ClusterInfo[]; 
+    resolution: number 
+};
+
+export type PostListResponse = PaginatedResponse<PostReponse> | PostReponse[] | PostClusterResponse;
+export type ClusterPostListResponse = PaginatedResponse<PostReponse> | PostReponse[];
 
 export type CreatePostRequest = {
     photo: string
@@ -24,6 +38,11 @@ export type CreatePostRequest = {
     accuracy_m: number
 }
 
+export type ClusterParams =  
+PostParams & {
+    h3_index: string
+}
+
 export type PostParams = {
     is_draft?: boolean
     visibility?: PostVisibility
@@ -31,4 +50,6 @@ export type PostParams = {
     lng?: number
     start_date?: string
     end_date?: string
+    resolution?: number
+    page?: number
 }

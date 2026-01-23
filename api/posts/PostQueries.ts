@@ -1,6 +1,6 @@
 import { apiClient } from "../apiClient";
 import { PostEndpoints } from "./endpoints";
-import { CreatePostRequest, PostListResponse, PostParams, PostReponse } from "./type";
+import { ClusterParams, ClusterPostListResponse, CreatePostRequest, PostListResponse, PostParams, PostReponse } from "./type";
 
 function guessImageType(filename: string) {
   const ext = filename.split(".").pop()?.toLowerCase();
@@ -33,6 +33,7 @@ interface PostService {
   updatePost: (postId: string) => Promise<PostReponse>;
   postRetrieve: (postId: string) => Promise<PostReponse>;
   partialUpdate: (postId: string) => Promise<PostReponse>;
+  listClusterPost: (params: ClusterParams) => Promise<ClusterPostListResponse>;
 }
 
 const postService: PostService = {
@@ -55,6 +56,8 @@ const postService: PostService = {
     apiClient<PostReponse>(PostEndpoints.postRetrieve(postId), { method: "GET", credentials: "include" }) ,
   partialUpdate: (postId) =>
     apiClient<PostReponse>(PostEndpoints.partialUpdate(postId), { method: "PATCH", credentials: "include" }),
+  listClusterPost: (params) =>
+    apiClient<ClusterPostListResponse>(PostEndpoints.listClusterPost(params), { method: "GET", credentials: "include" })
 };
 
 export default postService;

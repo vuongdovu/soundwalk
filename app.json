@@ -1,16 +1,16 @@
 {
   "expo": {
-    "name": "apptemplate",
-    "slug": "apptemplate",
+    "name": "soundwalk",
+    "slug": "soundwalk",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "apptemplate",
+    "scheme": "soundwalk",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.vuongdovu1.apptemplate",
+      "bundleIdentifier": "com.vuongdovu1.soundwalk",
       "appleTeamId": "Y53WF4HJUU",
       "googleServicesFile": "./GoogleService-Info.plist",
       "infoPlist": {
@@ -29,7 +29,7 @@
     },
     "android": {
       "googleServicesFile": "./google-services.json",
-      "package": "com.vuongdovu1.apptemplate",
+      "package": "com.vuongdovu1.soundwalk",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
