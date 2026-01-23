@@ -25,8 +25,7 @@ export type PostClusterResponse = {
     resolution: number 
 };
 
-export type PostListResponse = PaginatedResponse<PostReponse> | PostReponse[] | PostClusterResponse;
-export type ClusterPostListResponse = PaginatedResponse<PostReponse> | PostReponse[];
+export type PostPageResponse = PaginatedResponse<PostReponse> | PostReponse[];
 
 export type CreatePostRequest = {
     photo: string

@@ -94,7 +94,6 @@ export default function HomeScreen() {
 
   const handleMarkerClick = useCallback((marker: AppleMaps.Marker) => {
     if (!marker.id) return;
-    console.log(resolution)
     if (resolution > 0) {
       router.push({
         pathname: '/Main/cluster/[clusterId]',

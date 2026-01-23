@@ -25,6 +25,14 @@ const listClusterPost = (params: ClusterParams) => {
   return `/api/v1/user-post/cluster/?${qs}`;
 }
 
+const listMyPost = (params?: PostParams) => {
+  const serialized = serializePostParams(params);
+  if (!serialized) return "/api/v1/user-post/mine/";
+  const qs = new URLSearchParams(serialized).toString();
+  return `/api/v1/user-post/mine/?${qs}`;
+};
+
+
 export const PostEndpoints = {
   createPost: data,
   listPost: listPost,
@@ -32,5 +40,6 @@ export const PostEndpoints = {
   updatePost: postById,
   postRetrieve: postById,
   partialUpdate: postById,
-  listClusterPost: listClusterPost, 
+  listClusterPost: listClusterPost,
+  listMyPost: listMyPost,
 };
