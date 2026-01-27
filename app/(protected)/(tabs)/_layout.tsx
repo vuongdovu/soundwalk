@@ -103,7 +103,7 @@ export default function TabLayout() {
         <Label selectedStyle={labelSelectedStyle}>Create</Label>
       </NativeTabs.Trigger>
 
-      <NativeTabs.Trigger name="Timeline">
+      {/* <NativeTabs.Trigger name="Timeline">
         {Platform.select({
           ios: <Icon sf="arrow.branch" selectedColor={tintColor} />,
           android: (
@@ -119,7 +119,7 @@ export default function TabLayout() {
           ),
         })}
         <Label selectedStyle={labelSelectedStyle}>Timeline</Label>
-      </NativeTabs.Trigger>
+      </NativeTabs.Trigger> */}
 
       <NativeTabs.Trigger name="Account">
         {Platform.select({

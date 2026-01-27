@@ -1,18 +1,18 @@
 import ProfileButton from "@/components/ui/complex/profile/profileButton";
-import { globalStyle } from "@/constants/styles";
 import type { Href } from "expo-router";
 import { router } from "expo-router";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { StyleSheet, type StyleProp, View, type ViewStyle } from "react-native";
 
-type Action = { name: string; page: Href };
+export type Action = { name: string; page: Href };
 
 type ActionListProps = {
   actions: Action[];
+  style?: StyleProp<ViewStyle>;
 };
 
-export default function ActionList({ actions }: ActionListProps) {
+export default function ActionList({ actions, style }: ActionListProps) {
   return (
-    <SafeAreaView style={globalStyle.safeArea}>
+    <View style={[styles.list, style]}>
       {actions.map((action) => (
         <ProfileButton
           key={`${action.name}-${String(action.page)}`}
@@ -22,6 +22,12 @@ export default function ActionList({ actions }: ActionListProps) {
           }}
         />
       ))}
-    </SafeAreaView>
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  list: {
+    gap: 10,
+  },
+});

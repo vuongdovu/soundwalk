@@ -1,4 +1,6 @@
-export const accountLinks = [
+import { Action } from "@/components/ui/primitive/actionList";
+
+export const accountLinks: Action[] = [
   {
     name: "Account Details",
     page: "/Account/details"

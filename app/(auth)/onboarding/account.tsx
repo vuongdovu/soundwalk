@@ -1,57 +1,60 @@
 import HeaderBackButton from '@/components/ui/complex/header/headerBackButton';
-import { Button } from '@/components/ui/primitive/button';
 import { router } from 'expo-router';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function AccountOnboardingScreen() {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [fullName, setFullName] = useState('');
+  const [username, setUsername] = useState('');
+  const [bio, setBio] = useState('');
 
-  const isReady = useMemo(() => !!name.trim() && !!email.trim() && password.length >= 6, [
-    name,
-    email,
-    password,
-  ]);
+  const isReady = fullName.trim().length > 0 && username.trim().length > 0;
 
   const handleNext = () => {
-    
-  }
+    router.push('/onboarding/profilePicture');
+  };
 
   return (
     <SafeAreaView style={styles.safeArea}>
-        <HeaderBackButton />
+      <View pointerEvents="none" style={styles.glowTop} />
+      <View pointerEvents="none" style={styles.glowBottom} />
       <View style={styles.container}>
+        <HeaderBackButton />
         <View style={styles.header}>
-          <Text style={styles.kicker}>Step 1 of 2</Text>
-          <Text style={styles.title}>Create your account</Text>
+          <Text style={styles.kicker}>Step 1 of 4</Text>
+          <Text style={styles.title}>Account basics</Text>
           <Text style={styles.subtitle}>
-            Tell us who you are so we can personalize your experience.
+            Set up your profile so people recognize you on Soundwalk.
           </Text>
         </View>
 
-        <View style={styles.form}>
+        <View style={styles.card}>
           <Input
             label="Full name"
             placeholder="Jane Doe"
-            value={name}
-            onChangeText={setName}
+            value={fullName}
+            onChangeText={setFullName}
             autoComplete="name"
             textContentType="name"
             returnKeyType="next"
           />
           <Input
-            label="Email"
-            placeholder="name@email.com"
-            value={email}
-            onChangeText={setEmail}
+            label="Username"
+            placeholder="janedoe"
+            value={username}
+            onChangeText={setUsername}
             autoCapitalize="none"
-            keyboardType="email-address"
-            autoComplete="email"
-            textContentType="emailAddress"
+            autoCorrect={false}
             returnKeyType="next"
+          />
+          <Input
+            label="Bio (optional)"
+            placeholder="Tell people what you are into"
+            value={bio}
+            onChangeText={setBio}
+            multiline
+            textAlignVertical="top"
           />
         </View>
 
@@ -59,19 +62,14 @@ export default function AccountOnboardingScreen() {
           style={[styles.button, !isReady && styles.buttonDisabled]}
           activeOpacity={0.9}
           disabled={!isReady}
-          onPress={() => {router.push("/Main")}}
+          onPress={handleNext}
         >
-          <Text style={styles.buttonText}>Create account</Text>
+          <Text style={styles.buttonText}>Continue</Text>
         </TouchableOpacity>
 
         <Text style={styles.footerText}>
-          By continuing you agree to our Terms and acknowledge our Privacy Policy.
+          You can update your profile details anytime in Settings.
         </Text>
-
-        <Button onPress={() => {handleNext()}}>
-          Next
-        </Button>
-
       </View>
     </SafeAreaView>
   );
@@ -79,14 +77,15 @@ export default function AccountOnboardingScreen() {
 
 type InputProps = React.ComponentProps<typeof TextInput> & { label: string };
 
-function Input({ label, ...props }: InputProps) {
+function Input({ label, multiline, style, ...props }: InputProps) {
   return (
     <View style={styles.inputGroup}>
       <Text style={styles.label}>{label}</Text>
       <TextInput
         {...props}
+        multiline={multiline}
         placeholderTextColor="#94A3B8"
-        style={styles.input}
+        style={[styles.input, multiline && styles.inputMultiline, style]}
       />
     </View>
   );
@@ -95,12 +94,33 @@ function Input({ label, ...props }: InputProps) {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#0C1B2A',
+    backgroundColor: '#0B1726',
+  },
+  glowTop: {
+    position: 'absolute',
+    width: 240,
+    height: 240,
+    borderRadius: 120,
+    backgroundColor: '#2563EB',
+    opacity: 0.2,
+    top: -80,
+    right: -60,
+  },
+  glowBottom: {
+    position: 'absolute',
+    width: 280,
+    height: 280,
+    borderRadius: 140,
+    backgroundColor: '#0EA5E9',
+    opacity: 0.18,
+    bottom: -140,
+    left: -90,
   },
   container: {
     flex: 1,
     paddingHorizontal: 24,
-    paddingVertical: 32,
+    paddingTop: 16,
+    paddingBottom: 32,
     gap: 24,
   },
   header: {
@@ -108,38 +128,51 @@ const styles = StyleSheet.create({
   },
   kicker: {
     color: '#7FB2FF',
-    fontWeight: '700',
-    letterSpacing: 0.5,
+    fontSize: 12,
+    letterSpacing: 1,
+    fontFamily: 'Montserrat-SemiBold',
   },
   title: {
     fontSize: 26,
-    fontWeight: '800',
     color: '#EAF2FF',
+    fontFamily: 'Montserrat-Bold',
   },
   subtitle: {
     fontSize: 15,
     color: '#C5D5ED',
     lineHeight: 20,
+    fontFamily: 'Montserrat-Medium',
   },
-  form: {
+  card: {
+    backgroundColor: '#0F2438',
+    borderColor: '#1E3A5F',
+    borderWidth: 1,
+    borderRadius: 16,
+    padding: 16,
     gap: 14,
   },
   inputGroup: {
     gap: 8,
   },
   label: {
-    fontSize: 14,
+    fontSize: 13,
     color: '#A7B8D6',
+    fontFamily: 'Montserrat-SemiBold',
   },
   input: {
-    backgroundColor: '#12263A',
+    backgroundColor: '#132A40',
     borderColor: '#1E3A5F',
     borderWidth: 1,
     borderRadius: 12,
     paddingHorizontal: 14,
-    paddingVertical: 14,
+    paddingVertical: 12,
     color: '#EAF2FF',
-    fontSize: 16,
+    fontSize: 15,
+    fontFamily: 'Montserrat-Medium',
+  },
+  inputMultiline: {
+    minHeight: 88,
+    textAlignVertical: 'top',
   },
   button: {
     paddingVertical: 16,
@@ -158,11 +191,12 @@ const styles = StyleSheet.create({
   buttonText: {
     color: '#FFFFFF',
     fontSize: 16,
-    fontWeight: '700',
+    fontFamily: 'Montserrat-Bold',
   },
   footerText: {
     color: '#7A8CA8',
     fontSize: 13,
     lineHeight: 18,
+    fontFamily: 'Montserrat-Medium',
   },
 });

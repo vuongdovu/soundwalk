@@ -1,98 +1,252 @@
-import { useSession } from '@/context/SessionContext';
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
-
-import authService from '@/api/auth/AuthQueries';
+import { useInfiniteMyPost } from '@/api/posts/RQuery';
+import type { PostReponse } from '@/api/posts/type';
 import { useCurrentUserProfile } from '@/api/profile/RQuery';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
 import ProfilePicture from '@/components/ui/complex/profile/profilePicture';
-import ActionList from '@/components/ui/primitive/actionList';
-import { accountLinks } from '@/constants/accountLinks';
-import tokenService from '@/services/TokenService';
-import { GoogleSignin } from '@react-native-google-signin/google-signin';
-import { Text } from 'react-native';
+import { SWText } from '@/components/ui/primitive/text';
+import { theme } from '@/constants/theme';
+import { useSession } from '@/context/SessionContext';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { router } from 'expo-router';
+import { useMemo } from 'react';
+import {
+  Image,
+  Pressable,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import Animated, {
+  interpolate,
+  useAnimatedRef,
+  useAnimatedStyle,
+  useScrollOffset,
+} from 'react-native-reanimated';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
+const HEADER_HEIGHT = 260;
 
 export default function AccountScreen() {
   const session = useSession();
-  const token = tokenService.getAccessToken();
-  const {data, isLoading} = useCurrentUserProfile();
+  const { data: profile } = useCurrentUserProfile();
+  const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    useInfiniteMyPost({ is_draft: false });
 
+  const posts = useMemo<PostReponse[]>(() => {
+    if (!data) return [];
+    return data.pages.flatMap((page) =>
+      Array.isArray(page) ? page : page.results,
+    );
+  }, [data]);
 
-  async function signOut(){
-    if (GoogleSignin.hasPreviousSignIn()) {
-      await GoogleSignin.signOut()
-      console.log("signed out")
-    }
-    session.setUser(null);
-    const refresh = await tokenService.getRefreshToken();
-    await authService.logout(refresh);
-    await tokenService.clear();
-    await session.refreshSession();
-  }
+  const scrollRef = useAnimatedRef<Animated.FlatList<PostReponse>>();
+  const scrollOffset = useScrollOffset(scrollRef);
+  const headerAnimatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [
+        {
+          translateY: interpolate(
+            scrollOffset.value,
+            [-HEADER_HEIGHT, 0, HEADER_HEIGHT],
+            [-HEADER_HEIGHT / 2, 0, HEADER_HEIGHT * 0.75],
+          ),
+        },
+        {
+          scale: interpolate(
+            scrollOffset.value,
+            [-HEADER_HEIGHT, 0, HEADER_HEIGHT],
+            [2, 1, 1],
+          ),
+        },
+      ],
+    };
+  });
+
+  const displayName =
+    profile?.full_name?.trim() || session.user?.username || 'Your profile';
+  const displayHandle =
+    profile?.username?.trim() || session.user?.username || 'soundwalker';
 
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#0F1724', dark: '#050C14' }}
-      headerImage={<View />}
-    >
-      <ProfilePicture 
-        profilePictureUrl={data?.profile_picture_url}
+    <SafeAreaView style={styles.safeArea}>
+      <Animated.FlatList
+        ref={scrollRef}
+        data={posts}
+        keyExtractor={(item) =>
+          item.id ?? `${item.lat}-${item.lng}-${item.taken_at}`
+        }
+        scrollEventThrottle={16}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.listContent}
+        ListHeaderComponent={() => (
+          <View>
+            <Animated.View style={[styles.header, headerAnimatedStyle]}>
+              <View style={styles.headerGlowTop} />
+              <View style={styles.headerGlowBottom} />
+              <TouchableOpacity
+                style={styles.settingsButton}
+                activeOpacity={0.9}
+                onPress={() => router.push('/Account/settings')}
+              >
+                <MaterialCommunityIcons name="cog" size={20} color="#EAF2FF" />
+              </TouchableOpacity>
+              <View style={styles.headerContent}>
+                <ProfilePicture profilePictureUrl={profile?.profile_picture_url} />
+                <SWText style={styles.name}>{displayName}</SWText>
+                <SWText style={styles.handle}>@{displayHandle}</SWText>
+              </View>
+            </Animated.View>
+            <View style={styles.sectionHeader}>
+              <SWText style={styles.sectionTitle}>Timeline</SWText>
+            </View>
+          </View>
+        )}
+        onEndReached={() => {
+          if (hasNextPage && !isFetchingNextPage) {
+            fetchNextPage();
+          }
+        }}
+        onEndReachedThreshold={0.6}
+        ListEmptyComponent={
+          isLoading ? (
+            <View style={styles.messageContainer}>
+              <SWText>Loading...</SWText>
+            </View>
+          ) : (
+            <View style={styles.messageContainer}>
+              <SWText>No posts yet.</SWText>
+            </View>
+          )
+        }
+        ListFooterComponent={
+          isFetchingNextPage ? (
+            <View style={styles.footer}>
+              <SWText>Loading more...</SWText>
+            </View>
+          ) : null
+        }
+        renderItem={({ item }) => {
+          const handlePress = () => {
+            if (!item.id) return;
+            router.push({
+              pathname: '/Account/post/[postId]',
+              params: { postId: item.id },
+            });
+          };
+
+          return (
+            <Pressable onPress={handlePress} style={styles.card}>
+              <Image source={{ uri: item.photo }} style={styles.thumbnail} />
+              <View style={styles.meta}>
+                <SWText numberOfLines={1}>{item.taken_at}</SWText>
+                <SWText numberOfLines={1}>
+                  Visibility: {item.visibility}
+                </SWText>
+              </View>
+            </Pressable>
+          );
+        }}
       />
-      <Text>{session.user?.username}</Text>
-      <ActionList 
-        actions={accountLinks}
-      />
-      <ThemedView style={styles.card}>
-        <TouchableOpacity
-          style={styles.signOutButton}
-          activeOpacity={0.9}
-          onPress={() => {
-            signOut();
-          }}
-        >
-          <ThemedText type="defaultSemiBold" style={styles.signOutText}>
-            Sign out
-          </ThemedText>
-        </TouchableOpacity>
-      </ThemedView>
-    </ParallaxScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#050C14',
+  },
+  listContent: {
+    paddingHorizontal: 16,
+    paddingBottom: 32,
+    gap: 12,
+  },
   header: {
-    gap: 8,
-    marginBottom: 12,
+    height: HEADER_HEIGHT,
+    backgroundColor: '#0F1724',
+    overflow: 'hidden',
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255,255,255,0.06)',
   },
-  title: {
-    fontWeight: '800',
+  headerGlowTop: {
+    position: 'absolute',
+    width: 240,
+    height: 240,
+    borderRadius: 120,
+    backgroundColor: '#2563EB',
+    opacity: 0.25,
+    top: -120,
+    right: -80,
   },
-  subtitle: {
-    lineHeight: 20,
+  headerGlowBottom: {
+    position: 'absolute',
+    width: 260,
+    height: 260,
+    borderRadius: 130,
+    backgroundColor: '#0EA5E9',
+    opacity: 0.2,
+    bottom: -160,
+    left: -60,
+  },
+  settingsButton: {
+    position: 'absolute',
+    top: 16,
+    right: 16,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(15,23,36,0.65)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.12)',
+  },
+  headerContent: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    paddingBottom: 24,
+    gap: 6,
+  },
+  name: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#EAF2FF',
+  },
+  handle: {
+    fontSize: 13,
+    color: '#9FB2D5',
+  },
+  sectionHeader: {
+    paddingTop: 16,
+    paddingBottom: 4,
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#EAF2FF',
   },
   card: {
-    borderRadius: 14,
-    padding: 14,
-    gap: 10,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.06)',
-  },
-  cardTitle: {
-    fontWeight: '700',
-  },
-  cardBody: {
-    lineHeight: 20,
-  },
-  signOutButton: {
-    marginTop: 4,
-    paddingVertical: 12,
+    backgroundColor: theme.colorGrey,
     borderRadius: 12,
-    alignItems: 'center',
-    backgroundColor: '#E23E57',
+    overflow: 'hidden',
   },
-  signOutText: {
-    color: '#FFFFFF',
-    fontWeight: '700',
+  thumbnail: {
+    width: '100%',
+    height: 220,
+    resizeMode: 'cover',
+  },
+  meta: {
+    padding: 12,
+    gap: 4,
+  },
+  messageContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 24,
+  },
+  footer: {
+    paddingVertical: 12,
+    alignItems: 'center',
   },
 });
